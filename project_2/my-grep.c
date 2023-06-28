@@ -15,23 +15,22 @@ int main(int argc, char *argv[])
         exit(1);
     }
 
-    if (argc >= 3 && (file = fopen(argv[2], "r")) == NULL)
-    {
-        printf("my-grep: cannot open file");
-        exit(1);
-    }
-
     // If search term given, but no file specified
     if (argc == 2)
     {
         file = stdin;
+    }
+    else if ((file = fopen(argv[2], "r")) == NULL)
+    {
+        printf("my-grep: cannot open file");
+        exit(1);
     }
 
     while (getline(&line, &len, file) != -1)
     {
         if (strstr(line, argv[1]))
         {
-            printf("%s", line);
+            printf("this line '%s' has '%s'", line, argv[1]);
         }
     }
 

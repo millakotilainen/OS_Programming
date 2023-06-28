@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 int main(int argc, char *argv[])
 {
@@ -20,23 +21,36 @@ int main(int argc, char *argv[])
         }
 
         int count = 1;
-        char current_char, prev_char;
-        prev_char = fgetc(file);
+        char line[256];
+        char *prev_line = NULL;
 
-        while ((current_char = fgetc(file)) != EOF)
+        while (fgets(line, sizeof(line), file) != NULL)
         {
-            if (current_char == prev_char)
+            // removing the newline char
+            line[strcspn(line, "\n")] = '\0';
+
+            if (prev_line != NULL && strcmp(prev_line, line) == 0)
             {
                 count++;
             }
-            else
+            else if (prev_line != NULL)
             {
                 fwrite(&count, 4, 1, stdout);
-                fwrite(&prev_char, 1, 1, stdout);
+                fwrite(prev_line, 1, 1, stdout);
                 count = 1;
-                prev_char = current_char;
             }
+
+            free(prev_line);
+            prev_line = strdup(line);
         }
+
+        if (prev_line != NULL)
+        {
+            fwrite(&count, 4, 1, stdout);
+            fwrite(prev_line, 1, 1, stdout);
+        }
+
+        free(prev_line);
         fclose(file);
     }
 
